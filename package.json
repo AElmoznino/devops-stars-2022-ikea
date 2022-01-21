@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@sendgrid/mail": "^7.6.0",
+    "ikea-availability-checker": "^1.0.8",
+    "twilio": "^3.73.0"
+  }
+}
