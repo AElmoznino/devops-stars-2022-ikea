@@ -1,3 +1,60 @@
+const checker = require('ikea-availability-checker')
+const sgMail = require("@sendgrid/mail")
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const accountSid = process.env.TWILIO_SID
+const authToken = process.env.TWILIO_API_KEY
+const client = require("twilio")(accountSid, authToken)
+
+const emailMessage = {
+  to: "andre.elmoznino@valtech.com", // Change to your recipient
+  from: "andrewlaufer@hotmail.com", // Change to your verified sender
+  subject: "IKEA STUFF AVAILABLE!",
+  text: "Direct link: https://www.ikea.com/se/sv/",
+  html: `<a href="https://www.ikea.com/se/sv" target="_blank">Direct link</a>`,
+}
+async function sendEmail() {
+  try {
+    await sgMail.send(emailMessage)
+    console.log("Email sent")
+  } catch (error) {
+    console.error(error)
+
+    if (error.response) {
+      console.error(JSON.stringify(error.response.body, null, 2))
+    }
+  }
+}
+
+
+
+
+async function sendSms(stock, recipient) {
+  const message = await client.messages.create({
+    body: `IKEA Stuff Available. Count: ${stock}`,
+    from: "+17164669058",
+    to: recipient,
+  })
+}
+
+export default async function handler(req, res) {
+  const result = await checker.availability("155", "S69022537")
+  console.log("Result", result)
+
+  if (result.stock > 0) {
+    await sendSms(result.stock, "+46729385370")
+    await sendEmail()
+
+    return res.status(200).json({
+      status: "Email and SMS sent WOOP WOOP!",
+    })
+  }
+
+  res.status(200).json({
+    result,
+  })
+}
+
+
 
 /* --------------------------------------------------------------------------------- */
 
@@ -73,15 +130,15 @@ STEP 3:
     await sendSms(result.stock, "+46729385370")
 
     const accountSid = process.env.TWILIO_SID
-const authToken = process.env.TWILIO_API_KEY
-const client = require("twilio")(accountSid, authToken)
-async function sendSms(stock, recipient) {
-  const message = await client.messages.create({
-    body: `IKEA Stuff Available. Count: ${stock}`,
-    from: "+17164669058",
-    to: recipient,
-  })
-}
+    const authToken = process.env.TWILIO_API_KEY
+    const client = require("twilio")(accountSid, authToken)
+    async function sendSms(stock, recipient) {
+      const message = await client.messages.create({
+        body: `IKEA Stuff Available. Count: ${stock}`,
+        from: "+17164669058",
+        to: recipient,
+      })
+    }
 */
 
 /* --------------------------------------------------------------------------------- */
