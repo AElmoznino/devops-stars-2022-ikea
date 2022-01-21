@@ -1,0 +1,12 @@
+name: cron-every-hour
+on:
+  schedule:
+    - cron: "0 * * * *"
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Vercel route
+        run: |
+          curl --request GET \
+          --url 'https://devops-stars-2022-ikea.vercel.app/api' \
